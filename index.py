@@ -19,7 +19,7 @@ Options:
 
 import os
 base_dir = os.path.dirname(os.path.abspath(__file__))
-activate_this = os.path.join(base_dir, 'venv/bin/activate_this.py')
+activate_this = os.path.join(base_dir, 'venv/bin/activate_this.yp')
 execfile(activate_this, dict(__file__=activate_this))
 
 import spwd

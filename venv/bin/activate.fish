@@ -36,7 +36,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "/home/naim/Dropbox/Work/AnimaPoint/home/naim/python/Projects/form-input/venv"
+set -gx VIRTUAL_ENV "/home/naim/Dropbox/Work/AnimaPoint/home/naim/python/Projects/passwd-webui/venv"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH
