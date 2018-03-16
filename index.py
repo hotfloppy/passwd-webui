@@ -81,7 +81,7 @@ class PasswordHandler(object):
             print "[DEBUG] User %s doesn't exist" % self.username
             abort(400, "User %s doesn't exist" % self.username)
 
-    def getsalt(self, new_hashed=None):
+    def getsalt(self):
         print "[DEBUG] shadow_hashed = %s" % self.shadow_hashed
         self.salt = self.shadow_hashed.split("$")[2]
         return self.salt
