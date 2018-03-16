@@ -1,4 +1,19 @@
 # passwd-webui
 Small project to allow user to change their own password without root access.
 
-I'm using bottle framework to render the webui.
+### Language:
+* python 2.7
+
+### Database:
+* mongodb
+
+### Module:
+* bottle
+* docopt
+* pymongo
+* random
+* string
+* crypt
+* spwd
+* os
+
