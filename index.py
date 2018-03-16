@@ -32,45 +32,56 @@ from docopt import docopt
 
 
 class PasswordHandler(object):
+
+    '''
+    previous_passwd : this is current password
+    new_passwd      : this is new password
+    '''
+
     def __init__(self,
                  username=None,
-                 current_passwd=None,
-                 passwd=None,
+                 previous_passwd=None,
+                 new_passwd=None,
                  **kwargs):
         self.username = username
-        self.current_passwd = current_passwd
-        self.passwd = passwd
+        self.previous_passwd = previous_passwd
+        self.new_passwd = new_passwd
         self.shadow_hashed = None
-        self.current_hashed = None
+        self.previous_hashed = None
         self.salt = None
 
     def check_data(self):
         print "[DEBUG] Entering check_data()"
-        print self.username, self.passwd, self.current_passwd
+        print self.username, self.previous_passwd, self.new_passwd
+
+        if not self.previous_passwd:
+            abort(400, "Current password required")
+
         if not self.username:
             abort(400, "Name required")
         else:
             self.getshadow(True)
-        if not self.passwd:
+
+        if not self.new_passwd:
             abort(400, "Password required")
-        if not self.current_passwd:
-            abort(400, "Current password required")
+
         print "[DEBUG] Exiting check_data()"
 
     def getshadow(self, chk_flag=None):
         try:
             # print "[DEBUG] args[4] = %s" % kwargs[4]
             self.shadow_hashed = spwd.getspnam(self.username)[1]
+            print self.shadow_hashed
             if chk_flag is None:
                 print "[DEBUG] %s" % self.shadow_hashed
-                return self.shadow_hashed
             else:
                 print "[DEBUG] User %s exist" % self.username
+            return self.shadow_hashed
         except KeyError:
             print "[DEBUG] User %s doesn't exist" % self.username
             abort(400, "User %s doesn't exist" % self.username)
 
-    def getsalt(self):
+    def getsalt(self, new_hashed=None):
         print "[DEBUG] shadow_hashed = %s" % self.shadow_hashed
         self.salt = self.shadow_hashed.split("$")[2]
         return self.salt
@@ -78,27 +89,40 @@ class PasswordHandler(object):
     def compare(self):
         self.getshadow()
         self.getsalt()
-        self.current_hashed = hashing(self.current_passwd, self.salt)
-        print "[DEBUG] current_hashed = %s" % self.current_hashed
+        self.previous_hashed = hashing(self.previous_passwd, self.salt)
+        print "[DEBUG] previous_hashed = %s" % self.previous_hashed
         print "[DEBUG] shadow_hashed = %s" % self.shadow_hashed
-        if self.shadow_hashed == self.current_hashed:
+        if self.shadow_hashed == self.previous_hashed:
             return True
         else:
             abort(400, "Current password are incorrect")
 
 
 class DatabaseHandler(object):
+
+    '''
+    previous_passwd : this is current password
+    new_passwd      : this is new password
+    '''
+
     def __init__(self,
                  username=None,
-                 current_passwd=None,
-                 passwd=None,
+                 previous_passwd=None,
+                 new_passwd=None,
                  **kwargs):
-        self.phandler = PasswordHandler(username, current_passwd, passwd)
+        self.phandler = PasswordHandler(username, previous_passwd, new_passwd)
+        self.previous_hashed = self.phandler.getshadow()
+        self.previous_salt = self.phandler.getsalt()
+
+        self.username = username
+        self.new_passwd = new_passwd
+        self.new_hashed = None
         self.connection = None
         self.db = None
         self.userdata = None
 
     def connect(self):
+        print "[DEBUG] Entering DatabaseHandler.connect() function"
         try:
             # connection = MongoClient(ServerSelectionTimeoutMS=1)
             self.connection = MongoClient(
@@ -119,14 +143,18 @@ class DatabaseHandler(object):
         self.connect()
         try:
             # TODO: store or replace. check the id/username
-            self.db = self.connection.anima.users
+            # DB Name    : passwd_webui
+            # Collection : users
+            self.db = self.connection.passwd_webui.users
             # shadow_hashed = self.PasswordHandler.getshadow()
-            self.phandler.getshadow()
-            self.passwd = hashing(self.phandler.username, self.phandler.passwd)
+            self.salt = generate_salt()
+            self.new_hashed = hashing(self.new_passwd, self.salt)
             self.userdata = {
-                'username': self.phandler.username,
-                'previous_passwd': self.phandler.shadow_hashed,
-                'current_passwd': self.passwd
+                'username': self.username,
+                'previous_salt': self.previous_salt,
+                'previous_hashed': self.previous_hashed,
+                'new_salt': self.salt,
+                'new_hashed': self.new_hashed
             }
             self.db.insert_one(self.userdata)
         # except e.OperationFailure, err:
@@ -146,13 +174,17 @@ def change_passwd():
 
 def hashing(passwd, salt=None):
     if not salt:
-        random_salt = ([random.choice(string.ascii_letters +
-                                      string.digits) for _ in range(16)])
-        random_salt = "$6$" + ''.join(random_salt) + "$"
-        passwd = crypt.crypt(passwd, str(random_salt))
+        hashed = crypt.crypt(passwd, str(generate_salt()))
     else:
-        passwd = crypt.crypt(passwd, '$6$' + salt + "$")
-    return passwd
+        hashed = crypt.crypt(passwd, '$6$' + salt + "$")
+    return hashed
+
+
+def generate_salt():
+    salt = ([random.choice(string.ascii_letters +
+                           string.digits) for _ in range(16)])
+    salt = "$6$" + ''.join(salt) + "$"
+    return salt
 
 
 @route('/')
@@ -163,8 +195,8 @@ def index():
 @route('/modify_user', method='POST')
 def modify_user():
     username = request.forms.get('username')
-    current_passwd = request.forms.get('current_passwd')
-    passwd = request.forms.get('passwd')
+    previous_passwd = request.forms.get('previous_passwd')
+    new_passwd = request.forms.get('new_passwd')
 
     print "[DEBUG] Instantiate class PasswordHandler"
     phandler = PasswordHandler(**locals())
@@ -177,7 +209,7 @@ def modify_user():
         # passwd = hashing(passwd)
         dbhandler.store()
         # Return hashed password, just for debug. To be remove.
-        return """<p>User: %s<br>Pass: %s</p>""" % (username, dbhandler.passwd)
+        return """<p>User: %s<br>Pass: %s</p>""" % (username, dbhandler.new_hashed)
 
 
 if __name__ == "__main__":
