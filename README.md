@@ -1,5 +1,7 @@
 # passwd-webui
-Small project to allow user to change their own password without root access.
+Password changer for Linux user
+
+To allow users to change their own password without superuser/root privileges.
 
 ### Language:
 * python 2.7
@@ -11,6 +13,7 @@ Small project to allow user to change their own password without root access.
 * bottle
 * docopt
 * pymongo
+* fileinput
 * random
 * string
 * crypt
