@@ -1,0 +1,8 @@
+appdirs==1.4.3
+bottle==0.12.13
+docopt==0.6.2
+packaging==16.8
+passlib==1.7.1
+pymongo==3.4.0
+pyparsing==2.2.0
+six==1.10.0
