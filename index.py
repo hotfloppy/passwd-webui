@@ -89,9 +89,6 @@ class PasswordHandler(object):
             Raises:
                 None
         """
-        print "[DEBUG] Entering check_input()"
-        print self.username, self.previous_passwd, self.new_passwd
-
         if not self.previous_passwd:
             abort(400, "Current password required")
 
@@ -102,8 +99,6 @@ class PasswordHandler(object):
 
         if not self.new_passwd:
             abort(400, "Password required")
-
-        print "[DEBUG] Exiting check_input()"
 
     def compare(self):
         """Compare passwords
@@ -122,17 +117,10 @@ class PasswordHandler(object):
             None
         """
 
-        print "self.username = {}".format(self.username)
         self.getshadow(self.username)
         self.getsalt(self.username)
 
-        print "[DEBUG] previous_passwd = %s" % self.previous_passwd
-        print "[DEBUG] previous_salt = %s" % self.previous_salt
-
         self.previous_hashed = self.hashing(self.previous_passwd, "$6$" + self.previous_salt + "$")
-
-        print "[DEBUG] previous_hashed = %s" % self.previous_hashed
-        print "[DEBUG] shadow_hashed = %s" % self.shadow_hashed
 
         if self.shadow_hashed == self.previous_hashed:
             return True
@@ -161,11 +149,11 @@ class PasswordHandler(object):
                 self.shadow_hashed = spwd.getspnam(self.username)[1]
             return self.shadow_hashed
         except KeyError:
-            print "[DEBUG] User %s doesn't exist" % self.username
             abort(400, "User %s doesn't exist" % self.username)
 
     def getsalt(self, username=None):
-        """
+        """Get salt from shadow file
+
         Retrieve salt used to hashing the password
             for given username
 
@@ -183,7 +171,6 @@ class PasswordHandler(object):
             shadow_hashed = self.getshadow(username)
             self.previous_salt = shadow_hashed.split("$")[2]
         else:
-            print "[DEBUG] shadow_hashed = %s" % self.shadow_hashed
             self.previous_salt = self.shadow_hashed.split("$")[2]
         return self.previous_salt
 
@@ -206,9 +193,7 @@ class PasswordHandler(object):
         if not salt:
             hashed = crypt.crypt(passwd, str(self.generate_salt()))
         else:
-            # hashed = crypt.crypt(passwd, '$6$' + salt + "$")
             hashed = crypt.crypt(passwd, salt)
-        print "in hashing() | hashed = " + hashed
         return hashed
 
     def generate_salt(self):
@@ -309,7 +294,6 @@ class DatabaseHandler(object):
         Raises:
             None
         """
-        print "[DEBUG] Entering DatabaseHandler.connect() function"
         try:
             self.connection = MongoClient(
                 host=args['--dbhost'],
@@ -318,7 +302,6 @@ class DatabaseHandler(object):
             )
             self.connection.server_info()
         except Exception as err:
-            print "[DEBUG] DB unavailable: %s" % err
             abort(500, "Could not establish connection to database")
 
     def store(self):
@@ -333,7 +316,8 @@ class DatabaseHandler(object):
             self.previous_salt = self.pwhandler.getsalt(self.username)
 
             self.new_salt = self.pwhandler.generate_salt()
-            self.new_hashed = self.pwhandler.hashing(self.new_passwd, self.new_salt)
+            self.new_hashed = self.pwhandler.hashing(self.new_passwd,
+                                                     self.new_salt)
             self.userdata = {
                 'username': self.username,
                 'previous_salt': self.previous_salt,
@@ -342,10 +326,9 @@ class DatabaseHandler(object):
                 'new_hashed': self.new_hashed
             }
             self.db.insert_one(self.userdata)
-            self.pwhandler.change_passwd(self.previous_hashed, self.new_hashed)
-        # except e.OperationFailure, err:
+            self.pwhandler.change_passwd(self.previous_hashed,
+                                         self.new_hashed)
         except Exception as err:
-            print "[DEBUG] Operation failed: %s" % err
             abort(500, "Operation failed: %s" % err)
 
 
@@ -360,18 +343,17 @@ def modify_user():
     previous_passwd = request.forms.get('previous_passwd')
     new_passwd = request.forms.get('new_passwd')
 
-    print "[DEBUG] Instantiate class PasswordHandler"
-    pwhandler = PasswordHandler(username, previous_passwd, new_passwd)
-    dbhandler = DatabaseHandler(username, previous_passwd, new_passwd)
+    pwhandler = PasswordHandler(username,
+                                previous_passwd,
+                                new_passwd)
+    dbhandler = DatabaseHandler(username,
+                                previous_passwd,
+                                new_passwd)
 
     pwhandler.check_input()
 
-    print "[DEBUG] Compare password"
     if pwhandler.compare():
-        # passwd = hashing(passwd)
         dbhandler.store()
-        # Return hashed password, just for debug. To be remove.
-        return """<p>User: %s<br>Pass: %s</p>""" % (username, dbhandler.new_hashed)
 
 
 if __name__ == "__main__":
