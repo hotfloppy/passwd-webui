@@ -1,44 +1,32 @@
 <html>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="robots" content="noindex, nofollow">
+
         <title>Linux Password Changer</title>
-        <style>
-            table, th, td {
-                border: 1px solid white;
-                border-collapse: collapse;
-                padding: 15px;
-            }
-            body {
-                background-color: #282828;
-                color: white;
-                font-family: Ubuntu, Arial, Helvetica, sans-serif;
-            }
-        </style>
+
+        <link rel="stylesheet" href="css/style.css">
     </head>
+
     <body>
         <center>
-            <h1 style="text-align: center;">Password Changer</h1>
-            <div style="overflow-x: auto;">
-                <table style="height: 200px; margin-left: auto; margin-right: auto;" width="250px">
-                    <tbody>
-                        <tr>
-                        <td style="width: 196px; text-align: center;"><form action="/modify_user" method="POST">
-                            <p style="text-align: center;">
-                                <strong>Username:</strong><br />
-                                <input id="username" name="username" type="text" placeholder="Your username" autofocus required></p>
-                            <p style="text-align: center;">
-                                <strong>Password:</strong><br />
-                                <input id="previous_passwd" name="previous_passwd" type="password" placeholder="Current password" required></p>
-                            <p style="text-align: center;">
-                                <strong>New Password:</strong><br />
-                                <input id="new_passwd" name="new_passwd" type="password" placeholder="New password" required></p>
-                            <input type="submit" value="Submit" /></form>
-                        </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <p>* Some notes here.</p>
+            <h1>Password Changer</h1>
+                <form action="/modify_user" method="POST">
+
+                        <label for="username">Username:</label>
+                        <input id="username" name="username" type="text" placeholder="Your username" autofocus required></p>
+
+                        <label for="previous_passwd">Password:</label>
+                        <input id="previous_passwd" name="previous_passwd" type="password" placeholder="Current password" required></p>
+
+                        <label for="new_passwd">New Password:</label>
+                        <input id="new_passwd" name="new_passwd" type="password" placeholder="New password" required>
+
+                        <button type="submit" value="Submit">Change Password</button>
+                    </form>
+            <p><h6>Forward any inquiries to naim@animapoint.net</h6></p>
         </center>
     </body>
 </html>
