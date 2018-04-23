@@ -24,7 +24,7 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 activate_this = os.path.join(base_dir, 'venv/bin/activate_this.py')
 execfile(activate_this, dict(__file__=activate_this))
 
-from bottle import run, route, abort, request, template, app
+from bottle import run, route, abort, request, template, static_file, app, redirect
 from pymongo import MongoClient, errors as e
 from docopt import docopt
 import spwd
@@ -240,6 +240,10 @@ class PasswordHandler(object):
             print line,
         fileinput.close()
 
+        root_uid = 0
+        shadow_gid = 42
+        os.chown(shadow_file, root_uid, shadow_gid)
+
 
 """
   ____        _        _
@@ -301,7 +305,7 @@ class DatabaseHandler(object):
                 ServerSelectionTimeoutMS=1
             )
             self.connection.server_info()
-        except Exception as err:
+        except Exception:
             abort(500, "Could not establish connection to database")
 
     def store(self):
@@ -337,6 +341,11 @@ def index():
     return template('index.html')
 
 
+@route('/css/<filepath>')
+def css(filepath):
+    return static_file(filepath, root=os.path.join(base_dir, 'views/css'))
+
+
 @route('/modify_user', method='POST')
 def modify_user():
     username = request.forms.get('username').lower()
@@ -354,6 +363,8 @@ def modify_user():
 
     if pwhandler.compare():
         dbhandler.store()
+
+    return template('modified.html', username=username)
 
 
 if __name__ == "__main__":
