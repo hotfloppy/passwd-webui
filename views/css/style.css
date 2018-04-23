@@ -1,20 +1,3 @@
-/*
-body {
-    background-color: #282828;
-    color: white;
-    font-family: Ubuntu, Arial, Helvetica, sans-serif;
-}
-
-table, th, td {
-    border: 1px solid white;
-    border-collapse: collapse;
-    padding: 15px;
-}
-*/
-
-
-/* TODO make it cooler! */
-
 body {
   font-family: ubuntu, sans-serif;
   color: #333;
@@ -25,7 +8,26 @@ main {
 }
 
 h1 {
+  color: #666;
   font-size: 2em;
+  /* margin-bottom: 2.5em; */
+  margin-bottom: 0.85rem;
+  margin-top: 2rem;
+  text-align: center;
+}
+
+h3 {
+  color: #666;
+  /* font-size: 2rem; */
+  /* margin-bottom: 2.5em; */
+  margin-bottom: 0.85rem;
+  margin-top: 2rem;
+  text-align: center;
+}
+
+h6 {
+  color: #666;
+  /* font-size: 2rem; */
   /* margin-bottom: 2.5em; */
   margin-bottom: 0.85rem;
   margin-top: 2rem;
@@ -43,7 +45,7 @@ form {
 
 input {
   background-color: #FAFAFA;
-  border-radius: 0.8rem;
+  border-radius: 0.4rem;
   border: 1px solid #CCC;
   box-shadow: inset 0 1px 3px #DDD;
   box-sizing: border-box;
@@ -104,33 +106,11 @@ div {
     padding: 20px;
 }
 
-.alerts {
-  margin: 2rem auto 0 auto;
-  max-width: 30rem;
-}
-
-.alert {
-  border-radius: 0.2rem;
-  border: 1px solid;
-  color: #fff;
-  padding: 0.7em 1.5em;
-}
-
-.alert.error {
-  background-color: #E74C3C;
-  border-color: #C0392B;
-}
-
-.alert.success {
-  background-color: #60B044;
-  border-color: #5CA941;
-}
-
-
+/*
 @media only screen and (max-width: 480px) {
 
   form {
     border: 0;
   }
 }
-
+*/
