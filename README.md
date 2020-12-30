@@ -1,15 +1,14 @@
-# passwd-webui
-Password changer for Linux user
+## passwd-webui - A password changer for Linux user
 
-To allow users to change their own password without superuser/root privileges.
+To allow users to change their own password without superuser/root privileges via web UI.
 
-### Language:
-* python 2.7
+## Language:
+* Python 2.7
 
-### Database:
-* mongodb
+## Database:
+* MongoDB
 
-### Module:
+## Modules:
 * bottle
 * docopt
 * pymongo
@@ -20,7 +19,7 @@ To allow users to change their own password without superuser/root privileges.
 * spwd
 * os
 
-### How To's
+## How To's
 
 This following instructions are made on Ubuntu 20.04.
 
@@ -29,6 +28,7 @@ This following instructions are made on Ubuntu 20.04.
 ```
 $ sudo apt install python2.7
 ```
+
 
 2 - Install `pip2`
 
@@ -66,6 +66,11 @@ $ git clone https://github.com/hotfloppy/passwd-webui.git
 ```
 $ cd passwd-webui
 $ source venv/bin/activate
+```
+
+* Install all required modules
+
+```
 $ pip2 install -r requirements.txt
 ```
 
@@ -75,7 +80,7 @@ $ pip2 install -r requirements.txt
 $ sudo python2.7 index.py
 ```
 
-8.1 - Help page:
+* Help page:
 
 ```
 $ python2.7 index.py --help
